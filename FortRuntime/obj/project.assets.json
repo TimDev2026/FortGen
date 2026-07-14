@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\alani\\source\\repos\\FortGen\\FortRuntime\\FortRuntime.csproj",
+      "projectUniqueName": "C:\\Users\\alani\\OneDrive\\Desktop\\GitHub\\FortGen\\FortRuntime\\FortRuntime.csproj",
       "projectName": "FortRuntime",
-      "projectPath": "C:\\Users\\alani\\source\\repos\\FortGen\\FortRuntime\\FortRuntime.csproj",
+      "projectPath": "C:\\Users\\alani\\OneDrive\\Desktop\\GitHub\\FortGen\\FortRuntime\\FortRuntime.csproj",
       "packagesPath": "C:\\Users\\alani\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\alani\\source\\repos\\FortGen\\FortRuntime\\obj\\",
+      "outputPath": "C:\\Users\\alani\\OneDrive\\Desktop\\GitHub\\FortGen\\FortRuntime\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\alani\\AppData\\Roaming\\NuGet\\NuGet.Config",

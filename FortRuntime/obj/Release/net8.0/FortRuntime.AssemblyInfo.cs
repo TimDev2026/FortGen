@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FortRuntime")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+be79ff0a4c2b77f06a5a2e273124437a3bd54fea")]
 [assembly: System.Reflection.AssemblyProductAttribute("FortRuntime")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FortRuntime")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

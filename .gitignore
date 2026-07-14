@@ -69,3 +69,5 @@ Testing/
 .cache/
 /FortGen/Release
 /.vs
+/FortGen/x64
+/FortRuntime/obj/Release

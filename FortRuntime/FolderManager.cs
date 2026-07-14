@@ -131,7 +131,7 @@ namespace FortRuntime
             if (targetFolder != null && targetExePath != null)
             {
                 Console.WriteLine("You can launch into the game!");
-                Console.WriteLine("Do you watn to launch the game now? (y/n): ");
+                Console.WriteLine("Do you want to launch the game now? (y/n): ");
                 string? response = Console.ReadLine();
                 if (response?.Trim().ToLower() == "y")
                 {

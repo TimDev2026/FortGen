@@ -4,9 +4,9 @@
 DWORD MainThread(HMODULE Module)
 {
     Utils::InitConsole();
-    int i = 0x4;
     if (Logger::Init()) Logger::Log(LogLevel::Info, "FortGen DLL loaded and initialized successfully.");
-    Logger::Log(LogLevel::Info, std::format("0x{:X}", Finder::FindUKismetSystemLibrary_GetEngineVersion() - Scanner::GetModuleBase()));
+    Address::SetupAddress();
+    Logger::Log(LogLevel::Info, std::format("0x{:X}", Finder::FindFMemory_Realloc() - Scanner::GetModuleBase()));
     return 0;
 }
 

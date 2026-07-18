@@ -61,3 +61,38 @@ public:
 	DEFINE_STATICCLASS("/Script/CoreUObject.MulticastDelegateProperty", UMulticastDelegateProperty)
 	DEFINE_MEMBER(SignatureFunction, Address::UMulticastDelegateProperty_SignatureFunction, UFunction*)
 };
+
+class UBoolProperty : public UProperty
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.BoolProperty", UBoolProperty)
+	DEFINE_MEMBER(FieldSize, Address::UBoolProperty_FieldSize, uint8_t)
+	DEFINE_MEMBER(ByteOffset, Address::UBoolProperty_ByteOffset, uint8_t)
+	DEFINE_MEMBER(ByteMask, Address::UBoolProperty_ByteMask, uint8_t)
+	DEFINE_MEMBER(FieldMask, Address::UBoolProperty_FieldMask, uint8_t)
+};
+
+class UIntProperty : public UNumericProperty
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.IntProperty", UIntProperty)
+};
+
+class UFloatProperty : public UNumericProperty
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.FloatProperty", UFloatProperty)
+};
+
+// TUObjectPropertyBase
+class UObjectPropertyBase : public UProperty
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.ObjectPropertyBase", UObjectPropertyBase)
+};
+
+class UObjectProperty : public UObjectPropertyBase
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.ObjectProperty", UObjectProperty)
+};

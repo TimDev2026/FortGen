@@ -109,5 +109,14 @@ void Address::SetupOffsets()
 
 		UEnum_Names = 0x2C; // IDA
 		Logger::Log(LogLevel::Info, std::format("UEnum::Names: 0x{:X}", UEnum_Names).c_str());
+
+		UBoolProperty_FieldSize = 0x40;
+		Logger::Log(LogLevel::Info, std::format("UBoolProperty::FieldSize: 0x{:X}", UBoolProperty_FieldSize).c_str());
+		UBoolProperty_ByteOffset = 0x41;
+		Logger::Log(LogLevel::Info, std::format("UBoolProperty::ByteOffset: 0x{:X}", UBoolProperty_ByteOffset).c_str());
+		UBoolProperty_ByteMask = 0x42;
+		Logger::Log(LogLevel::Info, std::format("UBoolProperty::ByteMask: 0x{:X}", UBoolProperty_ByteMask).c_str());
+		UBoolProperty_FieldMask = 0x43;
+		Logger::Log(LogLevel::Info, std::format("UBoolProperty::FieldMask: 0x{:X}", UBoolProperty_FieldMask).c_str());
 	}
 }

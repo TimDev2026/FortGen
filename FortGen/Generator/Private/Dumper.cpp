@@ -136,6 +136,16 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 			std::ofstream File(Path);
 			File << Buffer.str();
 		}
+
+		std::string StructFileName = "FN_" + PackageName + "_structs.h";
+		if (GeneratedFiles.count(StructFileName))
+		{
+			std::ostringstream Buffer;
+			ProcessScriptStructs(Objects, PackageName, Buffer);
+			std::filesystem::path Path = FolderPath / StructFileName;
+			std::ofstream File(Path);
+			File << Buffer.str();
+		}
 	}
 }
 
@@ -322,6 +332,96 @@ void Dumper::CollectDependencies(UProperty* Property, const std::string& Package
 	}
 }
 
+void Dumper::GeneratePropertyInfo(UProperty* Property, PropertyInfo& Info)
+{
+	if (!Property) return;
+
+	Info.Type = GetPropertyType(Property);
+	Info.Name = GetSafeName(SanitizeName(Property->GetName()), Info.Type);
+	Info.Offset = Property->GetOffset_Internal();
+	Info.Size = Property->GetElementSize() * Property->GetArrayDim();
+	Info.ArrayDim = Property->GetArrayDim();
+
+	Info.bIsBool = Property->IsA(UBoolProperty::StaticClass());
+	Info.bIsBitField = false;
+	Info.ByteOffset = 0;
+	Info.ByteMask = 0;
+
+	if (Info.bIsBool)
+	{
+		UBoolProperty* BoolProperty = Property->Cast<UBoolProperty>();
+		if (!BoolProperty) return;
+
+		Info.ByteOffset = BoolProperty->GetByteOffset();
+		Info.ByteMask = BoolProperty->GetByteMask();
+
+		if (BoolProperty->GetFieldMask() != 0xFF)
+			Info.bIsBitField = true;
+	}
+}
+
+std::string Dumper::GetPropertyType(UProperty* Property)
+{
+	if (!Property)
+		return "Unknown";
+
+	if (Property->IsA(UBoolProperty::StaticClass()))
+		return "bool";
+	
+	if (Property->IsA(UIntProperty::StaticClass()))
+		return "int32_t";
+
+	if (Property->IsA(UFloatProperty::StaticClass()))
+		return "float";
+
+	if (Property->IsA(UStructProperty::StaticClass()))
+	{
+		UStructProperty* StructProperty = Property->Cast<UStructProperty>();
+		if (!StructProperty) return "Unknown";
+		if (StructProperty->GetStruct()) return SanitizeName(StructProperty->GetStruct()->GetNameCPP());
+		return "Unknown";
+	}
+
+	if (Property->IsA(UByteProperty::StaticClass()))
+	{
+		UByteProperty* ByteProperty = Property->Cast<UByteProperty>();
+		if (!ByteProperty) return "Unknown";
+		if (ByteProperty->GetEnum()) return SanitizeName(ByteProperty->GetEnum()->GetName());
+		return "Unknown";
+	}
+
+	if (Property->IsA(UObjectProperty::StaticClass()))
+	{
+		UObjectProperty* ObjectProperty = Property->Cast<UObjectProperty>();
+		if (!ObjectProperty) return "Unknown";
+		UProperty* PropertyClass = *(UProperty**)(__int64(ObjectProperty) + 0x50);
+		Logger::Log(LogLevel::Info, PropertyClass->GetNameCPP());
+		return "Unknown";
+	}
+
+	Logger::Log(LogLevel::Info, std::format("[Dumper::GetPropertyType]: Property Class is not found: {}", Property->GetFullName()).c_str());
+	return "Unknown";
+}
+
+std::string Dumper::GetSafeName(const std::string& Name, const std::string& Type)
+{
+	std::string CleanName = Name;
+	std::string CleanType = Type;
+
+	size_t LastSpace = CleanType.find_last_of(' ');
+	if (LastSpace != std::string::npos)
+		CleanType = CleanType.substr(LastSpace + 1);
+
+	size_t Marker = CleanType.find_last_of("*<>");
+	if (Marker != std::string::npos)
+		CleanType = CleanType.substr(0, Marker);
+
+	if (CleanName == CleanType)
+		CleanName += "_";
+
+	return CleanName;
+}
+
 void Dumper::ProcessEnums(const std::vector<UObject*>& Objects, const std::string& PackageName, std::ostream& File)
 {
 	for (UObject* Object : Objects)
@@ -334,6 +434,22 @@ void Dumper::ProcessEnums(const std::vector<UObject*>& Objects, const std::strin
 			UEnum* Enum = Object->Cast<UEnum>();
 			if (!Enum) continue;
 			GenerateEnum(Enum, File);
+		}
+	}
+}
+
+void Dumper::ProcessScriptStructs(const std::vector<UObject*>& Objects, const std::string& PackageName, std::ostream& File)
+{
+	for (UObject* Object : Objects)
+	{
+		if (!Object)
+			continue;
+
+		if (Object->IsA(UScriptStruct::StaticClass()))
+		{
+			UScriptStruct* Struct = Object->Cast<UScriptStruct>();
+			if (!Struct) continue;
+			GenerateScriptStructs(Struct, PackageName, File);
 		}
 	}
 }
@@ -393,4 +509,211 @@ void Dumper::GenerateEnum(UEnum* Enum, std::ostream& File)
 
 	File << Buffer.str().c_str();
 	Buffer.str("");
+}
+
+void Dumper::GenerateScriptStructs(UScriptStruct* ScriptStruct, const std::string& PackageName, std::ostream& File)
+{
+	if (!ScriptStruct)
+		return;
+
+	if (ProcessingScriptStructs.count(ScriptStruct->GetFullName()))
+		return;
+
+	ProcessingScriptStructs.insert(ScriptStruct->GetFullName());
+
+	UStruct* SuperStruct = ScriptStruct->GetSuperStruct();
+	if (SuperStruct && SuperStruct->IsA(UScriptStruct::StaticClass()) && SanitizeName(SuperStruct->GetOutermost()->GetPackageName()) == PackageName)
+	{
+		UScriptStruct* Struct = SuperStruct->Cast<UScriptStruct>();
+		if (!Struct) return;
+		if (ScriptStructsFullName.find(Struct->GetFullName()) == ScriptStructsFullName.end())
+			GenerateScriptStructs(Struct, PackageName, File);
+	}
+
+	auto ProcessProperty = [&](UObject* Object)
+		{
+			if (Object->IsA(UStructProperty::StaticClass()))
+			{
+				UStructProperty* StructProperty = Object->Cast<UStructProperty>();
+				if (!StructProperty) return;
+				if (StructProperty->GetStruct() && StructProperty->GetStruct()->IsA(UScriptStruct::StaticClass()))
+				{
+					UScriptStruct* Struct = StructProperty->GetStruct()->Cast<UScriptStruct>();
+					if (!Struct) return;
+					if (SanitizeName(Struct->GetOutermost()->GetPackageName()) == PackageName)
+						GenerateScriptStructs(Struct, PackageName, File);
+				}
+			}
+			else if (Object->IsA(UArrayProperty::StaticClass()))
+			{
+				UArrayProperty* ArrayProperty = Object->Cast<UArrayProperty>();
+				if (!ArrayProperty) return;
+				if (ArrayProperty->GetInner() && ArrayProperty->GetInner()->IsA(UStructProperty::StaticClass()))
+				{
+					UStructProperty* Inner = ArrayProperty->GetInner()->Cast<UStructProperty>();
+					if (!Inner) return;
+					if (Inner->GetStruct() && Inner->GetStruct()->IsA(UScriptStruct::StaticClass()))
+					{
+						UScriptStruct* Struct = Inner->GetStruct()->Cast<UScriptStruct>();
+						if (!Struct) return;
+						if (SanitizeName(Struct->GetOutermost()->GetPackageName()) == PackageName)
+							GenerateScriptStructs(Struct, PackageName, File);
+					}
+				}
+			}
+			else if (Object->IsA(UMapProperty::StaticClass()))
+			{
+				UMapProperty* MapProperty = Object->Cast<UMapProperty>();
+				if (!MapProperty) return;
+				
+				auto CheckProp = [&](UProperty* Property)
+					{
+						if (Property && Property->IsA(UStructProperty::StaticClass()))
+						{
+							UStructProperty* StructProperty = Property->Cast<UStructProperty>();
+							if (!StructProperty) return;
+							if (StructProperty->GetStruct() && StructProperty->GetStruct()->IsA(UScriptStruct::StaticClass()))
+							{
+								UScriptStruct* Struct = StructProperty->GetStruct()->Cast<UScriptStruct>();
+								if (!Struct) return;
+								if (SanitizeName(Struct->GetOutermost()->GetPackageName()) == PackageName)
+									GenerateScriptStructs(Struct, PackageName, File);
+							}
+						}
+					};
+
+				CheckProp(MapProperty->GetKeyProp());
+				CheckProp(MapProperty->GetValueProp());
+			}
+			// TODO: USetProperty
+		};
+
+	for (UField* Child = ScriptStruct->GetChildren(); Child; Child = Child->GetNext())
+	{
+		if (!Child)
+			continue;
+
+		if (Child->IsA(UProperty::StaticClass()))
+			ProcessProperty(Child);
+	}
+
+	if (SanitizeName(ScriptStruct->GetOutermost()->GetPackageName()) == PackageName)
+	{
+		std::string FullName = ScriptStruct->GetFullName();
+		GenerateScriptStruct(ScriptStruct, File);
+		ScriptStructsFullName.insert(FullName);
+	}
+}
+
+void Dumper::GenerateScriptStruct(UScriptStruct* ScriptStruct, std::ostream& File)
+{
+	if (!ScriptStruct)
+		return;
+
+	if (ScriptStructsFullName.find(ScriptStruct->GetFullName()) != ScriptStructsFullName.end())
+		return;
+
+	std::string StructName = SanitizeName(ScriptStruct->GetName());
+	if (GeneratedNamesInPackage.count(StructName))
+		return;
+
+	GeneratedNamesInPackage.insert(StructName);
+
+	std::ostringstream Buffer;
+	std::ostringstream SupportBuffer;
+
+	std::string SuperStructName = (ScriptStruct->GetSuperStruct() && ScriptStruct->GetSuperStruct()->IsA(UScriptStruct::StaticClass())) ? SanitizeName(ScriptStruct->GetSuperStruct()->GetNameCPP()) : "";
+	std::string StructFullName = ScriptStruct->GetFullName();
+
+	if (StructFullName.find("Default__") != std::string::npos)
+		return;
+
+	Buffer << "// " << StructFullName << "\n";
+
+	int32_t FullSize = MinStructSize.count(ScriptStruct) ? MinStructSize[ScriptStruct] : ScriptStruct->GetPropertiesSize();
+	int32_t SuperSize = (ScriptStruct->GetSuperStruct() && (ScriptStruct->GetSuperStruct()->IsA(UScriptStruct::StaticClass()) || ScriptStruct->GetSuperStruct()->IsA(UClass::StaticClass()))) ? (MinStructSize.count(ScriptStruct->GetSuperStruct()) ? MinStructSize[ScriptStruct->GetSuperStruct()] : ScriptStruct->GetSuperStruct()->GetPropertiesSize()) : 0;
+
+	Buffer << "// " << SDKMC_SSHEX(FullSize - SuperSize, 4) << " (" << SDKMC_SSHEX(FullSize, 4) << ")\n";
+
+	if (!SuperStructName.empty())
+		Buffer << "struct " << StructName << " : public " << SuperStructName << "\n{\n";
+	else
+		Buffer << "struct " << StructName << "\n{\n";
+
+	std::vector<PropertyInfo> Properties;
+
+	for (UField* Child = ScriptStruct->GetChildren(); Child; Child = Child->GetNext())
+	{
+		if (!Child) continue;
+		if (Child->IsA(UProperty::StaticClass()))
+		{
+			UProperty* Property = Child->Cast<UProperty>();
+			if (!Property) continue;
+			PropertyInfo Info;
+			GeneratePropertyInfo(Property, Info);
+			Properties.push_back(Info);
+		}
+	}
+
+	std::sort(Properties.begin(), Properties.end(), PropertyInfo::Sort);
+
+	int32_t CurrentOffset = SuperSize;
+
+	if (!Properties.empty() || FullSize > CurrentOffset)
+	{
+		int32_t LastBitfieldByteOffset = -1;
+
+		for (const PropertyInfo& Property : Properties)
+		{
+			int32_t Offset = Property.Offset;
+			int32_t Size = Property.Size;
+
+			if (Offset > CurrentOffset)
+			{
+				int32_t Padding = Offset - CurrentOffset;
+				std::ostringstream PadName;
+
+				PadName << "UnknownData_" << std::hex << std::uppercase << CurrentOffset << "[" << SDKMC_SSHEX(Padding, 0) << "];";
+				Buffer << "\t" << SDKMC_SSCOL("uint8_t", 50) << " " << SDKMC_SSCOL(PadName.str(), 50) << " // " << SDKMC_SSHEX(CurrentOffset, 4) << " (" << SDKMC_SSHEX(Padding, 4) << ") MISSED OFFSET\n";
+			}
+
+			std::string PropertyType = Property.Type;
+			std::string PropertyName = Property.Name;
+
+			if (Property.ArrayDim > 1)
+				PropertyName += "[" + std::to_string(Property.ArrayDim) + "]";
+
+			if (Property.bIsBool && Property.bIsBitField)
+			{
+				if (LastBitfieldByteOffset != -1 && LastBitfieldByteOffset != Property.ByteOffset)
+					Buffer << "\t" << SDKMC_SSCOL("uint8_t", 50) << " " << SDKMC_SSHEX(": 0;", 50) << "\n";
+
+				Buffer << "\t" << SDKMC_SSHEX("uint8_t", 50) << " " << SDKMC_SSCOL(PropertyName + " : 1;", 50) << " // " << SDKMC_SSHEX(Offset, 4) << " (" << SDKMC_SSHEX(Size, 4) << ") [BITFIELD] [ByteOffset: " << SDKMC_SSHEX(Property.ByteOffset, 2) << "] [Mask: " << SDKMC_SSHEX(Property.ByteMask, 2) << "]\n";
+
+				LastBitfieldByteOffset = Property.ByteOffset;
+			}
+			else
+			{
+				Buffer << "\t" << SDKMC_SSCOL(PropertyType, 50) << " " << SDKMC_SSCOL(PropertyName + ";", 50) << " // " << SDKMC_SSHEX(Offset, 4) << " (" << SDKMC_SSHEX(Size, 4) << ")\n";
+				LastBitfieldByteOffset = -1;
+			}
+
+			CurrentOffset = max(CurrentOffset, Offset + Size);
+		}
+
+		if (FullSize > CurrentOffset)
+		{
+			int32_t Padding = FullSize - CurrentOffset;
+			std::ostringstream PadName;
+
+			PadName << "UnknownData_" << std::hex << std::uppercase << CurrentOffset << "[" << SDKMC_SSHEX(Padding, 0) << "];";
+			Buffer << "\t" << SDKMC_SSCOL("uint8_t", 50) << " " << SDKMC_SSCOL(PadName.str(), 50) << " // " << SDKMC_SSHEX(CurrentOffset, 4) << " (" << SDKMC_SSHEX(Padding, 4) << ") MISSED OFFSET\n";
+		}
+	}
+
+	Buffer << "\n\tstatic class UScriptStruct* StaticStruct();\n";
+
+	Buffer << "};\n\n";
+
+	File << Buffer.str();
 }

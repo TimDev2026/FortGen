@@ -63,6 +63,13 @@ namespace Address
 
 	inline uintptr_t UEnum_Names = 0;
 
+	inline uintptr_t UBoolProperty_FieldSize = 0;
+	inline uintptr_t UBoolProperty_ByteOffset = 0;
+	inline uintptr_t UBoolProperty_ByteMask = 0;
+	inline uintptr_t UBoolProperty_FieldMask = 0;
+
+	inline uintptr_t UObjectPropertyBase_PropertyClass = 0;
+
 	void SetupAddress();
 	void SetupOffsets();
 }

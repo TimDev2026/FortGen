@@ -30,13 +30,13 @@ std::string UObject::GetNameCPP() const
 		Name += GetName();
 		return Name;
 	}
-	else if (UScriptStruct::StaticClass())
+	else if (IsA(UScriptStruct::StaticClass()))
 	{
 		Name += "F";
 		Name += GetName();
 		return Name;
 	}
-	else if (UClass::StaticClass())
+	else if (IsA(UClass::StaticClass()))
 	{
 		for (UClass* ClassPrivate = (UClass*)this; ClassPrivate; ClassPrivate = (UClass*)ClassPrivate->GetSuperStruct())
 		{

@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
 #include "Object.h"
+#include "Script.h"
 
 /* UField:
 * Next: 0x1C
@@ -61,4 +62,5 @@ class UFunction : public UStruct
 {
 public:
 	DEFINE_STATICCLASS("/Script/CoreUObject.Function", UFunction)
+	DEFINE_MEMBER(FunctionFlags, Address::UFunction_FunctionFlags, EFunctionFlags)
 };

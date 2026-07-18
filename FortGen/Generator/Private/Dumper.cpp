@@ -74,23 +74,27 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 		bool bHasClass = false;
 		bool bHasParam = false;
 
-		for (UObject* Package : Objects)
+		for (UObject* Object : Objects)
 		{
-			if (Package->IsA(UEnum::StaticClass()))
+			if (Object->IsA(UEnum::StaticClass()))
 			{
 				bHasEnum = true;
 			}
-			else if (Package->IsA(UScriptStruct::StaticClass()))
+			else if (Object->IsA(UScriptStruct::StaticClass()))
 			{
 				bHasStruct = true;
 			}
-			else if (Package->IsA(UClass::StaticClass()))
+			else if (Object->IsA(UClass::StaticClass()))
 			{
 				bHasClass = true;
 			}
-			else if (Package->IsA(UFunction::StaticClass()))
+			else if (Object->IsA(UFunction::StaticClass()))
 			{
-
+				UFunction* Function = Object->Cast<UFunction>();
+				if (!Function) continue;
+				bHasParam = true;
+				if (Function->GetFunctionFlags() & (FUNC_Delegate | FUNC_MulticastDelegate))
+					bHasStruct = true;
 			}
 		}
 	}
@@ -126,10 +130,7 @@ void Dumper::InitMinStructSize()
 						{
 							UProperty* Property = Child->Cast<UProperty>();
 							if (MinOffset == -1 || Property->GetOffset_Internal() < MinOffset)
-							{
 								MinOffset = Property->GetOffset_Internal();
-								Logger::Log(LogLevel::Info, std::format("Offset=0x{:X} Property={}", Property->GetOffset_Internal(), Property->GetFullName()).c_str());
-							}
 						}
 					}
 

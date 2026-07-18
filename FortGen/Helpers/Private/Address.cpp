@@ -82,9 +82,9 @@ void Address::SetupOffsets()
 		UProperty_OffsetInternal = 0x3C;
 		Logger::Log(LogLevel::Info, std::format("UProperty::OffsetInternal: 0x{:X}", UProperty_OffsetInternal).c_str());
 
-		UFunction_FunctionFlags = 0x50;
+		UFunction_FunctionFlags = 0x58;
 		Logger::Log(LogLevel::Info, std::format("UFunction:LFunctionFlags: 0x{:X}", UFunction_FunctionFlags).c_str());
-		UFunction_Func = 0x64;
+		UFunction_Func = 0x6C;
 		Logger::Log(LogLevel::Info, std::format("UFunction::Func: 0x{:X}", UFunction_Func).c_str());
 	}
 }

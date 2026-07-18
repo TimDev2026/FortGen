@@ -8,8 +8,8 @@ DWORD MainThread(HMODULE Module)
     Address::SetupAddress();
     VersionInfo::InitParseVersion();
     Address::SetupOffsets();
-    // GUObjectArray = reinterpret_cast<FUObjectArray*>(Scanner::GetModuleBase() + Address::GUObjectArray);
     GUObjectArray = decltype(GUObjectArray)(Scanner::GetModuleBase() + Address::GUObjectArray);
+    Dumper::Initialize();
     return 0;
 }
 

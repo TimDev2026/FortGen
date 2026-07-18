@@ -1,8 +1,10 @@
 #pragma once
 #include "framework.h"
+#include "../../../CoreUObject/Public/UObject/Object.h"
 
-class UKismetSystemLibrary // TODO: UBlueprintFunctionLibrary -> UObject
+class UKismetSystemLibrary : public UObject // TODO: UBlueprintFunctionLibrary
 {
 public:
 	static class FString GetEngineVersion();
+	static class FString GetPathName(const class UObject* Object);
 };

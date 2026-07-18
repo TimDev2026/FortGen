@@ -9,9 +9,16 @@ void Address::SetupAddress()
 
 	UKismetSystemLibrary_GetEngineVersion = Finder::FindUKismetSystemLibrary_GetEngineVersion() - ImageBase;
 	Logger::Log(LogLevel::Info, std::format("UKismetSystemLibrary::GetEngineVersion: 0x{:X}", UKismetSystemLibrary_GetEngineVersion).c_str());
+	UKismetSystemLibrary_GetPathName = Finder::FindUKismetSystemLibrary_GetPathName() - ImageBase;
+	Logger::Log(LogLevel::Info, std::format("UKismetSystemLibrary::GetPathName: 0x{:X}", UKismetSystemLibrary_GetPathName).c_str());
 
 	GUObjectArray = Finder::FindGUObjectArray() - ImageBase;
 	Logger::Log(LogLevel::Info, std::format("GUObjectArray: 0x{:X}", GUObjectArray).c_str());
+
+	StaticLoadObject = Finder::FindStaticLoadObject() - ImageBase;
+	Logger::Log(LogLevel::Info, std::format("StaticLoadObject: 0x{:X}", StaticLoadObject).c_str());
+	StaticFindObject = Finder::FindStaticFindObject() - ImageBase;
+	Logger::Log(LogLevel::Info, std::format("StaticFindObject: 0x{:X}", StaticFindObject).c_str());
 
 	FName_ToString = Finder::FindFName_ToString() - ImageBase;
 	Logger::Log(LogLevel::Info, std::format("FName::ToString: 0x{:X}", FName_ToString).c_str());
@@ -40,9 +47,6 @@ void Address::SetupOffsets()
 		FFixedUObjectArray_NumElements = 0x8;
 		Logger::Log(LogLevel::Info, std::format("FFixedUObjectArray::NumElements: 0x{:X}", FFixedUObjectArray_NumElements).c_str());
 
-		FUObjectItem_Object = 0x0;
-		Logger::Log(LogLevel::Info, std::format("FUObjectItem::Object: 0x{:X}", FUObjectItem_Object).c_str());
-
 		UObjectBase_ObjectFlags = 0x4;
 		Logger::Log(LogLevel::Info, std::format("UObjectBase::ObjectFlags: 0x{:X}", UObjectBase_ObjectFlags).c_str());
 		UObjectBase_InternalIndex = 0x8;
@@ -53,5 +57,29 @@ void Address::SetupOffsets()
 		Logger::Log(LogLevel::Info, std::format("UObjectBase::NamePrivate: 0x{:X}", UObjectBase_NamePrivate).c_str());
 		UObjectBase_OuterPrivate = 0x18;
 		Logger::Log(LogLevel::Info, std::format("UObjectBase::OuterPrivate: 0x{:X}", UObjectBase_OuterPrivate).c_str());
+
+		UField_Next = 0x1C;
+		Logger::Log(LogLevel::Info, std::format("UField::Next: 0x{:X}", UField_Next).c_str());
+
+		UStruct_SuperStruct = 0x20;
+		Logger::Log(LogLevel::Info, std::format("UStruct::SuperStruct: 0x{:X}", UStruct_SuperStruct).c_str());
+		UStruct_Children = 0x24;
+		Logger::Log(LogLevel::Info, std::format("UStruct::Children: 0x{:X}", UStruct_Children).c_str());
+		UStruct_PropertiesSize = 0x28;
+		Logger::Log(LogLevel::Info, std::format("UStruct::PropertiesSize: 0x{:X}", UStruct_PropertiesSize).c_str());
+		UStruct_MinAlignment = 0x2C;
+		Logger::Log(LogLevel::Info, std::format("UStruct::MinAlignment: 0x{:X}", UStruct_MinAlignment).c_str());
+
+		UClass_ClassDefaultObject = 0x2A;
+		Logger::Log(LogLevel::Info, std::format("UClass::ClassDefaultObject: 0x{:X}", UClass_ClassDefaultObject).c_str());
+
+		UProperty_ArrayDim = 0x20;
+		Logger::Log(LogLevel::Info, std::format("UProperty::ArrayDim: 0x{:X}", UProperty_ArrayDim).c_str());
+		UProperty_ElementSize = 0x24;
+		Logger::Log(LogLevel::Info, std::format("UProperty::ElementSize: 0x{:X}", UProperty_ElementSize).c_str());
+		UProperty_PropertyFlags = 0x28;
+		Logger::Log(LogLevel::Info, std::format("UProperty::PropertyFlags: 0x{:X}", UProperty_PropertyFlags).c_str());
+		UProperty_OffsetInternal = 0x3C;
+		Logger::Log(LogLevel::Info, std::format("UProperty::OffsetInternal: 0x{:X}", UProperty_OffsetInternal).c_str());
 	}
 }

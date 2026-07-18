@@ -22,8 +22,17 @@
 #include "Engine/Source/Runtime/Core/Public/Containers/UnrealString.h"
 #include "Engine/Source/Runtime/Core/Public/HAL/UnrealMemory.h"
 #include "Engine/Source/Runtime/Core/Public/UObject/NameTypes.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/Class.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/Object.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/UnrealType.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectArray.h"
-#include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBase.h" 
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBase.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBaseUtility.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
 #include "Engine/Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+
+#include "Generator/Public/Dumper.h"
+#include "Generator/Public/IDA.h"
+#include "Generator/Public/Settings.h"
 
 #endif //PCH_H

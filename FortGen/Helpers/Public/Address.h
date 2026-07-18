@@ -48,6 +48,19 @@ namespace Address
 	inline uintptr_t UFunction_FunctionFlags = 0;
 	inline uintptr_t UFunction_Func = 0;
 
+	inline uintptr_t UStructProperty_Struct = 0;
+
+	inline uintptr_t UByteProperty_Enum = 0;
+
+	inline uintptr_t UArrayProperty_Inner = 0;
+
+	inline uintptr_t UMapProperty_KeyProp = 0;
+	inline uintptr_t UMapProperty_ValueProp = 0;
+
+	inline uintptr_t UDelegateProperty_SignatureFunction = 0;
+
+	inline uintptr_t UMulticastDelegateProperty_SignatureFunction = 0;
+
 	void SetupAddress();
 	void SetupOffsets();
 }

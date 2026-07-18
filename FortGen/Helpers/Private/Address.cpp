@@ -86,5 +86,25 @@ void Address::SetupOffsets()
 		Logger::Log(LogLevel::Info, std::format("UFunction:LFunctionFlags: 0x{:X}", UFunction_FunctionFlags).c_str());
 		UFunction_Func = 0x6C;
 		Logger::Log(LogLevel::Info, std::format("UFunction::Func: 0x{:X}", UFunction_Func).c_str());
+
+		UStructProperty_Struct = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UStructProperty::Struct: 0x{:X}", UStructProperty_Struct).c_str());
+
+		UByteProperty_Enum = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UByteProperty::Enum: 0x{:X}", UByteProperty_Enum).c_str());
+
+		UArrayProperty_Inner = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UArrayProperty::Inner: 0x{:X}", UArrayProperty_Inner).c_str());
+
+		UMapProperty_KeyProp = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UMapProperty::KeyProp: 0x{:X}", UMapProperty_KeyProp).c_str());
+		UMapProperty_ValueProp = 0x54;
+		Logger::Log(LogLevel::Info, std::format("UMapProperty::ValueProp: 0x{:X}", UMapProperty_ValueProp).c_str());
+
+		UDelegateProperty_SignatureFunction = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UDelegateProperty::SignatureFunction: 0x{:X}", UDelegateProperty_SignatureFunction).c_str());
+
+		UMulticastDelegateProperty_SignatureFunction = 0x50;
+		Logger::Log(LogLevel::Info, std::format("UMulticastDelegateProperty::SignatureFunction: 0x{:X}", UMulticastDelegateProperty_SignatureFunction).c_str());
 	}
 }

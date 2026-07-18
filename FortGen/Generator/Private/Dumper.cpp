@@ -76,19 +76,21 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 
 		for (UObject* Object : Objects)
 		{
+			if (!Object)
+				continue;
+
 			if (Object->IsA(UEnum::StaticClass()))
 			{
 				bHasEnum = true;
 			}
-			else if (Object->IsA(UScriptStruct::StaticClass()))
-			{
+
+			if (Object->IsA(UScriptStruct::StaticClass()))
 				bHasStruct = true;
-			}
-			else if (Object->IsA(UClass::StaticClass()))
-			{
+
+			if (Object->IsA(UClass::StaticClass()))
 				bHasClass = true;
-			}
-			else if (Object->IsA(UFunction::StaticClass()))
+
+			if (Object->IsA(UFunction::StaticClass()))
 			{
 				UFunction* Function = Object->Cast<UFunction>();
 				if (!Function) continue;
@@ -97,6 +99,25 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 					bHasStruct = true;
 			}
 		}
+
+		if (bHasEnum)
+			GeneratedFiles.insert("FN_" + PackageName + "_enums.h");
+
+		if (bHasStruct)
+			GeneratedFiles.insert("FN_" + PackageName + "_structs.h");
+
+		if (bHasClass)
+			GeneratedFiles.insert("FN_" + PackageName + "_classes.h");
+
+		if (bHasParam)
+			GeneratedFiles.insert("FN_" + PackageName + "_parameters.h");
+	}
+
+	for (auto& [PackageName, Objects] : PackageMap)
+	{
+		GeneratedNamesInPackage.clear();
+
+		std::unordered_set<std::string> StructuralDependencies = GetPackageDependencies(PackageName, Objects, true);
 	}
 }
 
@@ -169,4 +190,116 @@ std::string Dumper::SanitizeName(std::string Name)
 		Name = "_" + Name;
 
 	return Name;
+}
+
+std::unordered_set<std::string> Dumper::GetPackageDependencies(const std::string& PackageName, const std::vector<UObject*>& Objects, bool bStructuralOnly, bool bClassSuperOnly)
+{
+	std::unordered_set<std::string> Dependencies;
+
+	for (UObject* Object : Objects)
+	{
+		if (!Object)
+			continue;
+
+		if (Object->IsA(UScriptStruct::StaticClass()) || Object->IsA(UClass::StaticClass()))
+		{
+			UStruct* Struct = Object->Cast<UStruct>();
+			if (!Struct)
+				continue;
+
+			if (Struct->GetSuperStruct())
+			{
+				bool bIsClassInheritance = Object->IsA(UClass::StaticClass());
+				bool bShouldAdd = !bClassSuperOnly || bIsClassInheritance;
+				UObject* SuperPackage = Struct->GetSuperStruct()->GetOutermost();
+				if (bShouldAdd && SuperPackage && SanitizeName(SuperPackage->GetPackageName()) != PackageName)
+					Dependencies.insert(SanitizeName(SuperPackage->GetPackageName()));
+			}
+
+			if (bClassSuperOnly)
+				continue;
+
+			for (UField* Child = Struct->GetChildren(); Child; Child = Child->GetNext())
+			{
+				if (!Child)
+					continue;
+
+				if (Child->IsA(UProperty::StaticClass()))
+				{
+					UProperty* Property = Child->Cast<UProperty>();
+					if (!Property) continue;
+					CollectDependencies(Property, PackageName, Dependencies, bStructuralOnly);
+				}
+			}
+		}
+	}
+
+	return Dependencies;
+}
+
+void Dumper::CollectDependencies(UProperty* Property, const std::string& PackageName, std::unordered_set<std::string>& Dependencies, bool bStructuralOnly)
+{
+	if (!Property)
+		return;
+
+	auto AddDependency = [&](UObject* Object)
+		{
+			if (!Object)
+				return;
+
+			UObject* Outer = Object->GetOutermost();
+			if (Outer && SanitizeName(Outer->GetPackageName()) != PackageName)
+				Dependencies.insert(SanitizeName(Outer->GetPackageName()));
+		};
+
+	// TODO: SetProperty
+
+	if (Property->IsA(UStructProperty::StaticClass()))
+	{
+		UStructProperty* Struct = Property->Cast<UStructProperty>();
+		if (!Struct) return;
+		AddDependency(Struct->GetStruct());
+	}
+	else if (Property->IsA(UByteProperty::StaticClass()))
+	{
+		UByteProperty* Byte = Property->Cast<UByteProperty>();
+		if (!Byte) return;
+		UEnum* Enum = Byte->GetEnum();
+		if (!Enum) return;
+		AddDependency(Enum);
+	}
+	else if (Property->IsA(UArrayProperty::StaticClass()))
+	{
+		UArrayProperty* Array = Property->Cast<UArrayProperty>();
+		if (!Array) return;
+		UProperty* Inner = Array->GetInner();
+		if (!Inner) return;
+		CollectDependencies(Inner, PackageName, Dependencies, bStructuralOnly);
+	}
+	else if (UMapProperty::StaticClass())
+	{
+		UMapProperty* Map = Property->Cast<UMapProperty>();
+		if (!Map) return;
+		UProperty* KeyProp = Map->GetKeyProp();
+		if (!KeyProp) return;
+		UProperty* ValueProp = Map->GetValueProp();
+		if (!ValueProp) return;
+		CollectDependencies(KeyProp, PackageName, Dependencies, bStructuralOnly);
+		CollectDependencies(ValueProp, PackageName, Dependencies, bStructuralOnly);
+	}
+	else if (UDelegateProperty::StaticClass())
+	{
+		UDelegateProperty* Delegate = Property->Cast<UDelegateProperty>();
+		if (!Delegate) return;
+		UFunction* SignatureFunction = Delegate->GetSignatureFunction();
+		AddDependency(SignatureFunction);
+	}
+	else if (UMulticastDelegateProperty::StaticClass())
+	{
+		UMulticastDelegateProperty* Delegate = Property->Cast<UMulticastDelegateProperty>();
+		if (!Delegate) return;
+		UFunction* SignatureFunction = Delegate->GetSignatureFunction();
+		if (!SignatureFunction) return;
+		AddDependency(SignatureFunction);
+	}
 }

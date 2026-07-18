@@ -10,7 +10,11 @@ private:
 	static void ProcessPackages(std::filesystem::path& FolderPath);
 	static void InitMinStructSize();
 	static std::string SanitizeName(std::string Name);
+	static std::unordered_set<std::string> GetPackageDependencies(const std::string& PackageName, const std::vector<UObject*>& Objects, bool bStructuralOnly = false, bool bClassSuperOnly = false);
+	static void CollectDependencies(class UProperty* Property, const std::string& PackageName, std::unordered_set<std::string>& Dependencies, bool bStructuralOnly = false);
 private:
 	inline static std::unordered_map<class UStruct*, int32_t> MinStructSize;
 	inline static std::unordered_set<std::string> ClassesFullName;
+	inline static std::unordered_set<std::string> GeneratedFiles;
+	inline static std::unordered_set<std::string> GeneratedNamesInPackage;
 };

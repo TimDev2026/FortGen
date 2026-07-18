@@ -56,3 +56,9 @@ class UScriptStruct : public UStruct
 public:
 	DEFINE_STATICCLASS("/Script/CoreUObject.ScriptStruct", UScriptStruct)
 };
+
+class UFunction : public UStruct
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.Function", UFunction)
+};

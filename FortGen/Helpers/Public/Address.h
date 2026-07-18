@@ -45,6 +45,9 @@ namespace Address
 	inline uintptr_t UProperty_PropertyFlags = 0;
 	inline uintptr_t UProperty_OffsetInternal = 0;
 
+	inline uintptr_t UFunction_FunctionFlags = 0;
+	inline uintptr_t UFunction_Func = 0;
+
 	void SetupAddress();
 	void SetupOffsets();
 }

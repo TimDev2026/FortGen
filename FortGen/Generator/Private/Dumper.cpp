@@ -56,7 +56,7 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 {
 	ClassesFullName.clear();
 
-	std::unordered_map<std::string, std::vector<UPackage*>> PackageMap;
+	std::unordered_map<std::string, std::vector<UObject*>> PackageMap;
 
 	for (int i = 0; i < GUObjectArray->GetObjObjects().GetNumElements(); i++)
 	{
@@ -64,7 +64,35 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 		if (!Object) continue;
 		UPackage* Package = Object->GetOutermost();
 		if (!Package) continue;
-		// Logger::Log(LogLevel::Info, Package->GetPackageName());
+		PackageMap[SanitizeName(Package->GetPackageName())].push_back(Object);
+	}
+
+	for (auto& [PackageName, Objects] : PackageMap)
+	{
+		bool bHasEnum = false;
+		bool bHasStruct = false;
+		bool bHasClass = false;
+		bool bHasParam = false;
+
+		for (UObject* Package : Objects)
+		{
+			if (Package->IsA(UEnum::StaticClass()))
+			{
+				bHasEnum = true;
+			}
+			else if (Package->IsA(UScriptStruct::StaticClass()))
+			{
+				bHasStruct = true;
+			}
+			else if (Package->IsA(UClass::StaticClass()))
+			{
+				bHasClass = true;
+			}
+			else if (Package->IsA(UFunction::StaticClass()))
+			{
+
+			}
+		}
 	}
 }
 
@@ -96,9 +124,12 @@ void Dumper::InitMinStructSize()
 
 						if (Child->IsA(UProperty::StaticClass()))
 						{
-							UProperty* Property = (UProperty*)Child;
-							/*if (MinOffset == -1 || Property->GetOffset_Internal() < MinOffset)
-								MinOffset = Property->GetOffset_Internal();*/
+							UProperty* Property = Child->Cast<UProperty>();
+							if (MinOffset == -1 || Property->GetOffset_Internal() < MinOffset)
+							{
+								MinOffset = Property->GetOffset_Internal();
+								Logger::Log(LogLevel::Info, std::format("Offset=0x{:X} Property={}", Property->GetOffset_Internal(), Property->GetFullName()).c_str());
+							}
 						}
 					}
 
@@ -114,4 +145,27 @@ void Dumper::InitMinStructSize()
 			}
 		}
 	}
+}
+
+std::string Dumper::SanitizeName(std::string Name)
+{
+	static const std::string InvalidChars = " /?:;.,'\"!@#$%^&*()+-=<>[]";
+
+	for (char& Char : Name)
+	{
+		if (InvalidChars.find(Char) != std::string::npos)
+			Char = '_';
+	}
+
+	if (!Name.empty() && isdigit(Name[0]))
+		Name = "_" + Name;
+
+	static const std::unordered_set<std::string> Keywords = {
+		"int", "float", "double", "char", "bool", "virtual", "volatile", "class", "struct", "true", "false", "unsigned", "signed", "long", "short", "auto", "template", "typename", "public", "protected", "private"
+	};
+
+	if (Keywords.count(Name))
+		Name = "_" + Name;
+
+	return Name;
 }

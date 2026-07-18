@@ -143,6 +143,7 @@
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Object.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Package.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Script.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UnrealType.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectArray.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectBase.h" />

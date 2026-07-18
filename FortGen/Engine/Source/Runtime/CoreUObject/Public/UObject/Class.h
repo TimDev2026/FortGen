@@ -61,6 +61,8 @@ public:
 class UFunction : public UStruct
 {
 public:
+	using FNativeFuncPtr = void(__thiscall*)(UObject*, struct FFrame*, void* const); // adding FFrame soon i guess
 	DEFINE_STATICCLASS("/Script/CoreUObject.Function", UFunction)
 	DEFINE_MEMBER(FunctionFlags, Address::UFunction_FunctionFlags, EFunctionFlags)
+	DEFINE_MEMBER(Func, Address::UFunction_Func, FNativeFuncPtr)
 };

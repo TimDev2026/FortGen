@@ -5,6 +5,7 @@
 class UProperty : public UField
 {
 public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.Property", UProperty)
 	DEFINE_MEMBER(ArrayDim, Address::UProperty_ArrayDim, int32_t)
 	DEFINE_MEMBER(ElementSize, Address::UProperty_ElementSize, int32_t)
 	DEFINE_MEMBER(PropertyFlags, Address::UProperty_PropertyFlags, uint64_t)

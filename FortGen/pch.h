@@ -24,6 +24,7 @@
 #include "Engine/Source/Runtime/Core/Public/UObject/NameTypes.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/Class.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/Object.h"
+#include "Engine/Source/Runtime/CoreUObject/Public/UObject/Package.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/UnrealType.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectArray.h"
 #include "Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBase.h"

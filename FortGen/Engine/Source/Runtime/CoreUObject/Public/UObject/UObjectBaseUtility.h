@@ -8,5 +8,6 @@ public:
 	std::string GetName() const;
 	std::string GetFullName() const;
 	std::string GetPathName() const;
-	bool IsA(const UClass* SomeBase) const;
+	bool IsA(const class UClass* SomeBase) const;
+	class UPackage* GetOutermost() const;
 };

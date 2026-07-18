@@ -29,6 +29,9 @@ std::string UObjectBaseUtility::GetPathName() const
 
 bool UObjectBaseUtility::IsA(const UClass* SomeBase) const
 {
+    if (!this)
+        return false;
+
     UClass* ClassPrivate = GetClassPrivate();
     if (!ClassPrivate)
         return false;
@@ -40,4 +43,17 @@ bool UObjectBaseUtility::IsA(const UClass* SomeBase) const
     }
 
     return false;
+}
+
+UPackage* UObjectBaseUtility::GetOutermost() const
+{
+    if (!this)
+        return nullptr;
+
+    UObject* Outermost = (UObject*)this;
+    
+    while (Outermost->GetOuterPrivate() != nullptr)
+        Outermost = (UObject*)Outermost->GetOuterPrivate();
+
+    return (class UPackage*)Outermost;
 }

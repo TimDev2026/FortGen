@@ -12,4 +12,20 @@
     static size_t GetStructSize() { return Size; }
 
 #define DEFINE_DATAINDEX(Name, Offset, Type, Structsize) \
-Type Get##Name(size_t Index) const { return reinterpret_cast<Type>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(this) + Offset) + Structsize * Index); }
+    Type Get##Name(size_t Index) const { return reinterpret_cast<Type>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(this) + Offset) + Structsize * Index); }
+
+#define DEFINE_STATICCLASS(ClassPathName, ClassName) \
+    static class UClass* StaticClass() \
+    { \
+        static class UClass* Clss = nullptr; \
+        if (!Clss) \
+            Clss = StaticFindObject<class UClass>(ClassPathName); \
+        return Clss; \
+    } \
+    static class ClassName* GetDefaultObj() \
+    { \
+        static class ClassName* DefaultObj = nullptr; \
+        if (!DefaultObj) \
+            DefaultObj = (class ClassName*)StaticClass()->GetClassDefaultObject(); \
+        return DefaultObj; \
+    }

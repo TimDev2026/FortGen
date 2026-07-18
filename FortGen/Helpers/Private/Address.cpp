@@ -73,13 +73,13 @@ void Address::SetupOffsets()
 		UClass_ClassDefaultObject = 0x2A;
 		Logger::Log(LogLevel::Info, std::format("UClass::ClassDefaultObject: 0x{:X}", UClass_ClassDefaultObject).c_str());
 
-		UProperty_ArrayDim = 0x20;
+		UProperty_ArrayDim = 0x8;
 		Logger::Log(LogLevel::Info, std::format("UProperty::ArrayDim: 0x{:X}", UProperty_ArrayDim).c_str());
 		UProperty_ElementSize = 0x24;
 		Logger::Log(LogLevel::Info, std::format("UProperty::ElementSize: 0x{:X}", UProperty_ElementSize).c_str());
 		UProperty_PropertyFlags = 0x28;
 		Logger::Log(LogLevel::Info, std::format("UProperty::PropertyFlags: 0x{:X}", UProperty_PropertyFlags).c_str());
-		UProperty_OffsetInternal = 0x3C;
+		UProperty_OffsetInternal = 0xF;
 		Logger::Log(LogLevel::Info, std::format("UProperty::OffsetInternal: 0x{:X}", UProperty_OffsetInternal).c_str());
 	}
 }

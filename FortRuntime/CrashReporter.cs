@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Diagnostics;
-using System.IO;
+using System.Threading.Tasks;
 
 namespace FortRuntime
 {
@@ -32,7 +33,7 @@ namespace FortRuntime
         private static extern IntPtr OpenThread(uint dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool GetThreadContext(IntPtr hThread, ref CONTEXT64 lpContext);
+        private static extern bool GetThreadContext(IntPtr hThread, ref CONTEXT32 lpContext);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hObject);
@@ -76,17 +77,7 @@ namespace FortRuntime
         private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
         [DllImport("dbghelp.dll", SetLastError = true)]
-        private static extern bool StackWalk64(
-            uint MachineType,
-            IntPtr hProcess,
-            IntPtr hThread,
-            ref STACKFRAME64 StackFrame,
-            ref CONTEXT64 ContextRecord,
-            IntPtr ReadMemoryRoutine,
-            IntPtr FunctionTableAccessRoutine,
-            IntPtr GetModuleBaseRoutine,
-            IntPtr TranslateAddress
-        );
+        private static extern bool StackWalk64(uint MachineType, IntPtr hProcess, IntPtr hThread, ref STACKFRAME64 StackFrame, ref CONTEXT32 ContextRecord, IntPtr ReadMemoryRoutine, IntPtr FunctionTableAccessRoutine, IntPtr GetModuleBaseRoutine, IntPtr TranslateAddress);
 
         // Constants
         private const int INFINITE = -1;
@@ -107,6 +98,8 @@ namespace FortRuntime
 
         private const uint IMAGE_FILE_MACHINE_AMD64 = 0x8664;
 
+        private const uint IMAGE_FILE_MACHINE_I386 = 0x014C;
+
         // Structure definitions matching x64 layout
         [StructLayout(LayoutKind.Explicit)]
         private struct DEBUG_EVENT32
@@ -114,7 +107,7 @@ namespace FortRuntime
             [FieldOffset(0)] public uint dwDebugEventCode;
             [FieldOffset(4)] public uint dwProcessId;
             [FieldOffset(8)] public uint dwThreadId;
-            [FieldOffset(12)] public EXCEPTION_DEBUG_INFO32 Exception; // was 16
+            [FieldOffset(12)] public EXCEPTION_DEBUG_INFO32 Exception;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -133,58 +126,59 @@ namespace FortRuntime
             public IntPtr ExceptionAddress;
             public uint NumberParameters;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 15)]
-            public uint[] ExceptionInformation; // was ulong[15]
+            public uint[] ExceptionInformation;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 16)]
-        private struct CONTEXT64
+        [StructLayout(LayoutKind.Sequential)]
+        private struct FLOATING_SAVE_AREA
         {
-            public ulong P1Home;
-            public ulong P2Home;
-            public ulong P3Home;
-            public ulong P4Home;
-            public ulong P5Home;
-            public ulong P6Home;
+            public uint ControlWord;
+            public uint StatusWord;
+            public uint TagWord;
+            public uint ErrorOffset;
+            public uint ErrorSelector;
+            public uint DataOffset;
+            public uint DataSelector;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 80)]
+            public byte[] RegisterArea;
+            public uint Cr0NpxState;
+        }
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct CONTEXT32
+        {
             public uint ContextFlags;
-            public uint MxCsr;
 
-            public ushort SegCs;
-            public ushort SegDs;
-            public ushort SegEs;
-            public ushort SegFs;
-            public ushort SegGs;
-            public ushort SegSs;
+            public uint Dr0;
+            public uint Dr1;
+            public uint Dr2;
+            public uint Dr3;
+            public uint Dr6;
+            public uint Dr7;
+
+            public FLOATING_SAVE_AREA FloatSave;
+
+            public uint SegGs;
+            public uint SegFs;
+            public uint SegEs;
+            public uint SegDs;
+
+            public uint Edi;
+            public uint Esi;
+            public uint Ebx;
+            public uint Edx;
+            public uint Ecx;
+            public uint Eax;
+
+            public uint Ebp;
+            public uint Eip;
+            public uint SegCs;
             public uint EFlags;
+            public uint Esp;
+            public uint SegSs;
 
-            public ulong Dr0;
-            public ulong Dr1;
-            public ulong Dr2;
-            public ulong Dr3;
-            public ulong Dr6;
-            public ulong Dr7;
-
-            public ulong Rax;
-            public ulong Rcx;
-            public ulong Rdx;
-            public ulong Rbx;
-            public ulong Rsp;
-            public ulong Rbp;
-            public ulong Rsi;
-            public ulong Rdi;
-            public ulong R8;
-            public ulong R9;
-            public ulong R10;
-            public ulong R11;
-            public ulong R12;
-            public ulong R13;
-            public ulong R14;
-            public ulong R15;
-
-            public ulong Rip;
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 976)]
-            public byte[] Dummy;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
+            public byte[] ExtendedRegisters;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -252,6 +246,21 @@ namespace FortRuntime
             public int Mode;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MINIDUMP_EXCEPTION_INFORMATION
+        {
+            public uint ThreadId;
+            public IntPtr ExceptionPointers;
+            public int ClientPointers; // BOOL
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct EXCEPTION_POINTERS
+        {
+            public IntPtr ExceptionRecord; // -> EXCEPTION_RECORD32
+            public IntPtr ContextRecord;   // -> CONTEXT32
+        }
+
         public static void StartMonitoring(int processId)
         {
             Thread monitorThread = new Thread(() => MonitorLoop(processId));
@@ -292,6 +301,16 @@ namespace FortRuntime
                             catch (Exception ex)
                             {
                                 Console.WriteLine($"[CrashReporter] Error generating crash report: {ex.Message}");
+                            }
+
+                            try
+                            {
+                                using (var proc = Process.GetProcessById(processId))
+                                    proc.Kill();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[CrashReporter] Failed to kill crashed process: {ex.Message}");
                             }
 
                             continueStatus = DBG_EXCEPTION_NOT_HANDLED;
@@ -433,16 +452,16 @@ namespace FortRuntime
                     {
                         try
                         {
-                            CONTEXT64 ctx = new CONTEXT64();
-                            ctx.ContextFlags = 0x00100007; // CONTEXT_FULL (x64)
+                            CONTEXT32 ctx = new CONTEXT32();
+                            ctx.ContextFlags = 0x10007; // CONTEXT_FULL (x64)
                             if (GetThreadContext(hThread, ref ctx))
                             {
                                 STACKFRAME64 frame = new STACKFRAME64();
-                                frame.AddrPC.Offset = ctx.Rip;
+                                frame.AddrPC.Offset = ctx.Eip;
                                 frame.AddrPC.Mode = 3; // AddrModeFlat
-                                frame.AddrFrame.Offset = ctx.Rbp;
+                                frame.AddrFrame.Offset = ctx.Ebp;
                                 frame.AddrFrame.Mode = 3;
-                                frame.AddrStack.Offset = ctx.Rsp;
+                                frame.AddrStack.Offset = ctx.Esp;
                                 frame.AddrStack.Mode = 3;
 
                                 IntPtr hDbgHelp = GetModuleHandle("dbghelp.dll");
@@ -451,7 +470,7 @@ namespace FortRuntime
 
                                 int depth = 0;
                                 while (StackWalk64(
-                                    IMAGE_FILE_MACHINE_AMD64,
+                                    IMAGE_FILE_MACHINE_I386,
                                     hProcess,
                                     hThread,
                                     ref frame,
@@ -509,6 +528,48 @@ namespace FortRuntime
                             {
                                 writer.WriteLine("Failed to retrieve thread context.");
                             }
+
+                            IntPtr pExceptionRecord = Marshal.AllocHGlobal(Marshal.SizeOf<EXCEPTION_RECORD32>());
+                            Marshal.StructureToPtr(exception, pExceptionRecord, false); // exception = debugEvent.Exception.ExceptionRecord
+
+                            IntPtr pContext = Marshal.AllocHGlobal(Marshal.SizeOf<CONTEXT32>());
+                            Marshal.StructureToPtr(ctx, pContext, false); // ctx = the CONTEXT32 you got from GetThreadContext
+
+                            EXCEPTION_POINTERS exPtrs = new EXCEPTION_POINTERS
+                            {
+                                ExceptionRecord = pExceptionRecord,
+                                ContextRecord = pContext
+                            };
+                            IntPtr pExPtrs = Marshal.AllocHGlobal(Marshal.SizeOf<EXCEPTION_POINTERS>());
+                            Marshal.StructureToPtr(exPtrs, pExPtrs, false);
+
+                            MINIDUMP_EXCEPTION_INFORMATION exInfo = new MINIDUMP_EXCEPTION_INFORMATION
+                            {
+                                ThreadId = debugEvent.dwThreadId,
+                                ExceptionPointers = pExPtrs,
+                                ClientPointers = 0 // false — these pointers are in OUR (debugger) address space, not the target's
+                            };
+                            IntPtr pExInfo = Marshal.AllocHGlobal(Marshal.SizeOf<MINIDUMP_EXCEPTION_INFORMATION>());
+                            Marshal.StructureToPtr(exInfo, pExInfo, false);
+
+                            // Generate UE4Minidump.dmp
+                            using (FileStream fs = new FileStream(dmpPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                bool success = MiniDumpWriteDump(
+                                    hProcess,
+                                    processId,
+                                    fs.SafeFileHandle.DangerousGetHandle(),
+                                    0,
+                                    pExInfo,      // was IntPtr.Zero
+                                    IntPtr.Zero,
+                                    IntPtr.Zero
+                                );
+                            }
+
+                            Marshal.FreeHGlobal(pExceptionRecord);
+                            Marshal.FreeHGlobal(pContext);
+                            Marshal.FreeHGlobal(pExPtrs);
+                            Marshal.FreeHGlobal(pExInfo);
                         }
                         finally
                         {
@@ -519,20 +580,6 @@ namespace FortRuntime
                     {
                         writer.WriteLine("Failed to open crashing thread.");
                     }
-                }
-
-                // Generate UE4Minidump.dmp
-                using (FileStream fs = new FileStream(dmpPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    bool success = MiniDumpWriteDump(
-                        hProcess,
-                        processId,
-                        fs.SafeFileHandle.DangerousGetHandle(),
-                        0, // MiniDumpNormal
-                        IntPtr.Zero,
-                        IntPtr.Zero,
-                        IntPtr.Zero
-                    );
                 }
 
                 // Notify user

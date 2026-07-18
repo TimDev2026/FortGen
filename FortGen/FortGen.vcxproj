@@ -142,6 +142,7 @@
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Classes\Object.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Object.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Package.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UnrealType.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectArray.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectBase.h" />
@@ -167,12 +168,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\UnrealType.cpp" />
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\UObjectBaseUtility.cpp" />
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\UObjectArray.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\Object.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Private\HAL\UnrealMemory.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Private\UObject\UnrealNames.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Private\KismetSystemLibrary.cpp" />
     <ClCompile Include="Generator\Private\Dumper.cpp" />
+    <ClCompile Include="Generator\Private\IDA.cpp" />
     <ClCompile Include="Helpers\Private\Finder.cpp" />
     <ClCompile Include="Helpers\Private\Scanner.cpp" />
     <ClCompile Include="Helpers\Private\Utils.cpp" />

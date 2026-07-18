@@ -1,13 +1,22 @@
 #pragma once
 #include "framework.h"
 #include "UObjectBaseUtility.h"
+#include "UObjectGlobals.h"
 
 class UObject : public UObjectBaseUtility
 {
 public:
+	std::string GetPackageName();
+public:
 	template<typename T>
-	T* Cast(class UClass* Class = T::StaticClass()) const
+	T* Cast(class UClass* Class = T::StaticClass())
 	{
-		return (this && IsA(Class)) ? reinterpret_cast<const T*>(this) : nullptr;
+		return (this && IsA(Class)) ? static_cast<T*>(this) : nullptr;
+	}
+
+	template<typename T>
+	const T* Cast(class UClass* Class = T::StaticClass()) const
+	{
+		return (this && IsA(Class)) ? static_cast<const T*>(this) : nullptr;
 	}
 };

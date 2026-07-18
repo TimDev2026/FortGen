@@ -27,10 +27,32 @@ public:
 	DEFINE_MEMBER(Children, Address::UStruct_Children, UField*)
 	DEFINE_MEMBER(PropertiesSize, Address::UStruct_PropertiesSize, int32_t)
 	DEFINE_MEMBER(MinAlignment, Address::UStruct_MinAlignment, int32_t)
+public:
+	static class UClass* StaticClass()
+	{
+		static class UClass* Clss = nullptr;
+		if (!Clss)
+			Clss = StaticFindObject<class UClass>("/Script/CoreUObject.Struct");
+		return Clss;
+	}
 };
 
 class UClass : public UStruct
 {
 public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.Class", UClass)
 	DEFINE_MEMBER(ClassDefaultObject, Address::UClass_ClassDefaultObject, UObject*)
+};
+
+
+class UEnum : public UField
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.Enum", UEnum)
+};
+
+class UScriptStruct : public UStruct
+{
+public:
+	DEFINE_STATICCLASS("/Script/CoreUObject.ScriptStruct", UScriptStruct)
 };

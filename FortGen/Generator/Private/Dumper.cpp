@@ -21,7 +21,9 @@ void Dumper::Initialize()
 	if (!std::filesystem::exists(SDKPath))
 		std::filesystem::create_directories(SDKPath);
 
-	DumpObjects(SDKPath);
+	InitMinStructSize();
+	DumpObjects(FolderPath);
+	ProcessPackages(SDKPath);
 
 	Logger::Log(LogLevel::Info, "FortGen is finished dumping the SDK.");
 }
@@ -48,4 +50,80 @@ void Dumper::DumpObjects(std::filesystem::path& FolderPath)
 	}
 
 	File.close();
+}
+
+void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
+{
+	ClassesFullName.clear();
+
+	std::unordered_map<std::string, std::vector<UPackage*>> PackageMap;
+
+	for (int i = 0; i < GUObjectArray->GetObjObjects().GetNumElements(); i++)
+	{
+		UObject* Object = (UObject*)GUObjectArray->GetObjObjects().GetObjects(i)->GetObjectW();
+		if (!Object) continue;
+		UPackage* Package = Object->GetOutermost();
+		if (!Package) continue;
+		// Logger::Log(LogLevel::Info, Package->GetPackageName());
+	}
+}
+
+void Dumper::InitMinStructSize()
+{
+	bool bChanged = true;
+
+	while (bChanged)
+	{
+		bChanged = false;
+
+		for (int i = 0; i < GUObjectArray->GetObjObjects().GetNumElements(); i++)
+		{
+			UObject* Object = (UObject*)GUObjectArray->GetObjObjects().GetObjects(i)->GetObjectW();
+			if (!Object) continue;
+			if (Object->IsA(UClass::StaticClass()))
+			{
+				UStruct* Struct = Object->Cast<UStruct>();
+				if (!Struct) continue;
+				UStruct* Super = Struct->GetSuperStruct();
+				if (Super)
+				{
+					int32_t MinOffset = -1;
+
+					for (UField* Child = Struct->GetChildren(); Child; Child = Child->GetNext())
+					{
+						if (Child->IsA(UProperty::StaticClass()))
+						{
+							UProperty* Property = Child->Cast<UProperty>();
+							if (MinOffset == -1 || Property->GetOffset_Internal() < MinOffset)
+								MinOffset = Property->GetOffset_Internal();
+						}
+					}
+
+					if (MinOffset != -1 && MinStructSize.count(Struct->GetSuperStruct()))
+					{
+						if (MinOffset < MinStructSize[Struct->GetSuperStruct()])
+						{
+							MinStructSize[Struct->GetSuperStruct()] = MinOffset;
+							bChanged = true;
+						}
+					}
+
+					if (MinOffset != -1)
+					{
+						auto It = MinStructSize.find(Super);
+						if (It == MinStructSize.end())
+						{
+							MinStructSize[Super] = MinOffset;
+							bChanged = true;
+						}
+						else if (MinOffset < It->second)
+						{
+							It->second = MinOffset;
+							bChanged = true;
+						}
+					}
+				}
+			}
+		}
+	}
 }

@@ -41,7 +41,7 @@ private:
 	static void ProcessPackages(std::filesystem::path& FolderPath);
 	static void BuildMinStructSize();
 	static std::string SanitizeName(std::string Name);
-	static std::unordered_set<std::string> GetPackageDependencies(const std::string& PackageName, const std::vector<UObject*>& Objects, bool bStructuralOnly = false, bool bClassSuperOnly = false);
+	static std::unordered_set<std::string> GetPackageDependencies(const std::string& PackageName, const std::vector<class UObject*>& Objects, bool bStructuralOnly = false, bool bClassSuperOnly = false);
 	static void CollectDependencies(class UProperty* Property, const std::string& PackageName, std::unordered_set<std::string>& Dependencies, bool bStructuralOnly = false);
 	static void GeneratePropertyInfo(class UProperty* Property, PropertyInfo& Info);
 	static std::string GetPropertyType(class UProperty* Property);
@@ -49,18 +49,23 @@ private:
 	static void PrintFileHeader(std::ostream& File, const std::string& PackageName, const std::unordered_set<std::string>& Dependencies = {}, const std::string& Type = "None", const std::unordered_set<std::string>& InheritanceDependencies = {});
 	static void BuildValidStructPackages();
 	static std::string GetFunctionSignature(class UFunction* Function, bool bWithScope = false);
+	static std::string GetFunctionBody(class UFunction* Function);
 private:
-	static void ProcessEnums(const std::vector<UObject*>& Objects, const std::string& PackageName, std::ostream& File);
-	static void ProcessScriptStructs(const std::vector<UObject*>& Objects, const std::string& PackageName, std::ostream& File);
-	static void ProcessClasses(const std::vector<UObject*>& Objects, const std::string& PackageName, std::ostream& File);
-	static void ProcessFunctions(const std::vector<UObject*>& Objects, std::ostream& File);
+	static void ProcessEnums(const std::vector<class UObject*>& Objects, const std::string& PackageName, std::ostream& File);
+	static void ProcessScriptStructs(const std::vector<class UObject*>& Objects, const std::string& PackageName, std::ostream& File);
+	static void ProcessClasses(const std::vector<class UObject*>& Objects, const std::string& PackageName, std::ostream& File);
+	static void ProcessFunctions(const std::vector<class UObject*>& Objects, std::ostream& File);
+	static void ProcessParameters(const std::vector<class UObject*>& Objects, const std::string& PackageName, std::ostream& File);
 private:
 	static void GenerateEnum(class UEnum* Enum, std::ostream& File);
 	static void GenerateScriptStructs(class UScriptStruct* ScriptStruct, const std::string& PackageName, std::ostream& File);
 	static void GenerateScriptStruct(class UScriptStruct* ScriptStruct, std::ostream& File);
-	static void GenerateClasses(class UClass* Class, const std::string& PackageName, std::ostream& File);
-	static void GenerateClass(class UClass* Class, std::ostream& File);
+	static void GenerateClasses(const std::vector<class UObject*>& Objects, class UClass* Class, const std::string& PackageName, std::ostream& File);
+	static void GenerateClass(const std::vector<class UObject*>& Objects, class UClass* Class, std::ostream& File);
 	static void GenerateStaticClass(class UClass* Class, std::ostream& File);
+	static void GenerateStaticStruct(class UScriptStruct* Struct, std::ostream& File);
+	static void GenerateFunction(const std::vector<class UObject*>& Objects, class UClass* Class, std::ostream& File);
+	static void GenerateParameters(class UFunction* Function, std::ostream& File);
 private:
 	inline static std::unordered_map<class UStruct*, int32_t> MinStructSize;
 	inline static std::unordered_set<std::string> ClassesFullName;

@@ -9,10 +9,8 @@ DWORD MainThread(HMODULE Module)
     VersionInfo::InitParseVersion();
     Address::SetupOffsets();
     GUObjectArray = decltype(GUObjectArray)(Scanner::GetModuleBase() + Address::GUObjectArray);
-    IDADumper::Initialize();
+    IDAMapper::Initialize();
     Dumper::Initialize();
-    UObject* Object = *(UObject**)(__int64(StaticFindObject("/Script/FortniteGame.FortPlayerController") + 0x2A));
-    Logger::Log(LogLevel::Info, Object->GetName());
     return 0;
 }
 

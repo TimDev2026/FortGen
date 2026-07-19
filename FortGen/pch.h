@@ -37,7 +37,7 @@
 #include "Engine/Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
 #include "Generator/Public/Dumper.h"
-#include "Generator/Public/IDA.h"
+#include "Generator/Public/IDAMapper.h"
 #include "Generator/Public/Settings.h"
 
 #endif //PCH_H

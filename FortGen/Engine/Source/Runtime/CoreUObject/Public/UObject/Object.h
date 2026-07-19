@@ -9,6 +9,8 @@ public:
 	std::string GetPackageName() const;
 	std::string GetNameCPP() const;
 public:
+	static class UClass* StaticClass();
+public:
 	template<typename T>
 	T* Cast(class UClass* Class = T::StaticClass())
 	{

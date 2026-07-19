@@ -65,3 +65,11 @@ std::string UObject::GetNameCPP() const
 
 	return "None";
 }
+
+UClass* UObject::StaticClass()
+{
+	static class UClass* Clss = nullptr;
+	if (!Clss)
+		Clss = StaticFindObject<class UClass>("/Script/CoreUObject.Object");
+	return Clss;
+}

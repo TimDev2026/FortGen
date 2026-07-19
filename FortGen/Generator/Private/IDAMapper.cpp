@@ -1,6 +1,6 @@
 #include "pch.h"
 
-void IDADumper::Initialize()
+void IDAMapper::Initialize()
 {
 	Logger::Log(LogLevel::Info, "Starting IDA VTable Dump...");
 }

@@ -160,7 +160,7 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Kismet\KismetSystemLibrary.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Generator\Public\Dumper.h" />
-    <ClInclude Include="Generator\Public\IDA.h" />
+    <ClInclude Include="Generator\Public\IDAMapper.h" />
     <ClInclude Include="Generator\Public\Settings.h" />
     <ClInclude Include="Helpers\Public\Address.h" />
     <ClInclude Include="Helpers\Public\Finder.h" />
@@ -179,7 +179,7 @@
     <ClCompile Include="Engine\Source\Runtime\Core\Private\UObject\UnrealNames.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Private\KismetSystemLibrary.cpp" />
     <ClCompile Include="Generator\Private\Dumper.cpp" />
-    <ClCompile Include="Generator\Private\IDA.cpp" />
+    <ClCompile Include="Generator\Private\IDAMapper.cpp" />
     <ClCompile Include="Helpers\Private\Finder.cpp" />
     <ClCompile Include="Helpers\Private\Scanner.cpp" />
     <ClCompile Include="Helpers\Private\Utils.cpp" />

@@ -70,7 +70,7 @@ void Address::SetupOffsets()
 		UStruct_MinAlignment = 0x2C;
 		Logger::Log(LogLevel::Info, std::format("UStruct::MinAlignment: 0x{:X}", UStruct_MinAlignment).c_str());
 
-		UClass_ClassDefaultObject = 0x2A; // some reason in IDA it's says this is the correct offset (i prob need to change the UStruct offsets soon)
+		UClass_ClassDefaultObject = 0xA8;
 		Logger::Log(LogLevel::Info, std::format("UClass::ClassDefaultObject: 0x{:X}", UClass_ClassDefaultObject).c_str());
 
 		UProperty_ArrayDim = 0x20;

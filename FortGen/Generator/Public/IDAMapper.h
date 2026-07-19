@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class IDADumper
+class IDAMapper
 {
 public:
 	static void Initialize();

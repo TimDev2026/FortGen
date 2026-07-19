@@ -63,7 +63,7 @@
     <ClInclude Include="Engine\Source\Runtime\Core\Public\UObject\NameTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Generator\Public\IDA.h">
+    <ClInclude Include="Generator\Public\IDAMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Classes\Object.h">
@@ -149,7 +149,7 @@
     <ClCompile Include="Generator\Private\Dumper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Generator\Private\IDA.cpp">
+    <ClCompile Include="Generator\Private\IDAMapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\Object.cpp">

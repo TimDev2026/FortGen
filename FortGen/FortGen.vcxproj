@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -139,15 +139,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Classes\Object.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Object.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectBase.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Package.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\Script.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UnrealType.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectArray.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectBase.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectBaseUtility.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectGlobals.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\Public\UObject\UTextProperty.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Public\Containers\Array.h" />
+    <ClInclude Include="Engine\Source\Runtime\Core\Public\Containers\Map.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Public\Containers\PropertyMarcos.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Public\Containers\UnrealString.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Public\HAL\UnrealMemory.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Public\UObject\NameTypes.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Kismet\KismetSystemLibrary.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Generator\Public\Dumper.h" />
+    <ClInclude Include="Generator\Public\IDAMapper.h" />
+    <ClInclude Include="Generator\Public\Settings.h" />
     <ClInclude Include="Helpers\Public\Address.h" />
     <ClInclude Include="Helpers\Public\Finder.h" />
     <ClInclude Include="Helpers\Public\Logger.h" />
@@ -158,10 +172,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\UObjectBaseUtility.cpp" />
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\UObjectArray.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\CoreUObject\Private\UObject\Object.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Private\HAL\UnrealMemory.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Private\UObject\UnrealNames.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Private\KismetSystemLibrary.cpp" />
+    <ClCompile Include="Generator\Private\Dumper.cpp" />
+    <ClCompile Include="Generator\Private\IDAMapper.cpp" />
     <ClCompile Include="Helpers\Private\Finder.cpp" />
     <ClCompile Include="Helpers\Private\Scanner.cpp" />
     <ClCompile Include="Helpers\Private\Utils.cpp" />
@@ -174,6 +192,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

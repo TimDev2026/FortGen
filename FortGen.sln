@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FortGen", "FortGen\FortGen.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FortRuntime", "FortRuntime\FortRuntime.csproj", "{2C97BD87-7902-474E-9730-CDEB9F771F2F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDKTest", "SDKTest\SDKTest.vcxproj", "{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{2C97BD87-7902-474E-9730-CDEB9F771F2F}.Release|x64.Build.0 = Release|Any CPU
 		{2C97BD87-7902-474E-9730-CDEB9F771F2F}.Release|x86.ActiveCfg = Release|Any CPU
 		{2C97BD87-7902-474E-9730-CDEB9F771F2F}.Release|x86.Build.0 = Release|Any CPU
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|Any CPU.Build.0 = Debug|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|x64.ActiveCfg = Debug|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|x64.Build.0 = Debug|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|x86.ActiveCfg = Debug|Win32
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Debug|x86.Build.0 = Debug|Win32
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|Any CPU.ActiveCfg = Release|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|Any CPU.Build.0 = Release|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|x64.ActiveCfg = Release|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|x64.Build.0 = Release|x64
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|x86.ActiveCfg = Release|Win32
+		{354E9D09-0115-44FD-ABBA-1D5E35CC97C2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

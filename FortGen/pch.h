@@ -17,6 +17,11 @@
 #include "Helpers/Public/Address.h"
 #include "Helpers/Public/VersionInfo.h"
 
+// TODO: Engine/Source/Runtime/Core/Public/Internationalization/ITextData.h
+// TODO: Engine/Source/Runtime/Core/Public/Internationalization/Text.h
+// TODO: Engine/Source/Runtime/Core/Public/Templates/SharedPointerInternals.h
+// TODO: Engine/Source/Runtime/Core/Public/Templates/SharedPointer.h
+
 #include "Engine/Source/Runtime/Core/Public/Containers/PropertyMarcos.h"
 #include "Engine/Source/Runtime/Core/Public/Containers/Array.h"
 #include "Engine/Source/Runtime/Core/Public/Containers/UnrealString.h"

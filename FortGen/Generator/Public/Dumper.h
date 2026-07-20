@@ -12,6 +12,7 @@ struct PropertyInfo
 	bool bIsBitField;
 	uint8_t ByteOffset;
 	uint8_t ByteMask;
+	bool bIsDelegate;
 
 	static bool Sort(const PropertyInfo& A, const PropertyInfo& B)
 	{
@@ -70,6 +71,7 @@ private:
 	static void GenerateStaticStruct(class UScriptStruct* Struct, std::ostream& File);
 	static void GenerateFunction(const std::vector<class UObject*>& Objects, class UClass* Class, std::ostream& File);
 	static void GenerateParameters(class UFunction* Function, std::ostream& File);
+	static void GenerateDelegates(class UFunction* Function, std::ostream& File);
 private:
 	inline static std::unordered_map<class UStruct*, int32_t> MinStructSize;
 	inline static std::unordered_set<std::string> ClassesFullName;

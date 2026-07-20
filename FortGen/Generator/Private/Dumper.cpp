@@ -144,7 +144,7 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 			std::string Content = Buffer.str();
 			if (!Content.empty())
 			{
-				ParamBuffers[PackageName] = Content;
+				DelegateBuffers[PackageName] = Content;
 				GeneratedFiles.insert("FN_" + PackageName + "_parameters.h");
 			}
 		}
@@ -247,7 +247,7 @@ void Dumper::ProcessPackages(std::filesystem::path& FolderPath)
 		std::filesystem::path DelegatesPath = FolderPath / DelegatesFileName;
 		if (GeneratedFiles.count(DelegatesFileName))
 		{
-			std::ofstream File(ParamsPath);
+			std::ofstream File(DelegatesPath);
 			PrintFileHeader(File, PackageName, FullDependencies, "delegates");
 			File << DelegateBuffers[PackageName];
 		}
@@ -481,6 +481,7 @@ void Dumper::GeneratePropertyInfo(UProperty* Property, PropertyInfo& Info)
 	Info.bIsBitField = false;
 	Info.ByteOffset = 0;
 	Info.ByteMask = 0;
+	Info.bIsDelegate = Property->IsA(UDelegateProperty::StaticClass()) || Property->IsA(UMulticastDelegateProperty::StaticClass());
 
 	if (Info.bIsBool)
 	{
@@ -908,13 +909,16 @@ void Dumper::GenerateSDKHeader(std::filesystem::path& HeaderPath)
 				if (Type == "structs.h")
 					return 1;
 
-				if (Type == "classes.h")
+				if (Type == "delegates.h")
 					return 2;
 
-				if (Type == "parameters.h")
+				if (Type == "classes.h")
 					return 3;
 
-				return 4;
+				if (Type == "parameters")
+					return 4;
+
+				return 5;
 			};
 
 		return Priority(TypeA) < Priority(TypeB);
@@ -1054,7 +1058,7 @@ void Dumper::ProcessDelegates(const std::vector<class UObject*>& Objects, const 
 			UFunction* Function = Object->Cast<UFunction>();
 			if (!Function) continue;
 			if (!IsDelegateSignature(Function)) continue;
-			Logger::Log(LogLevel::Info, Function->GetName());
+			GenerateDelegates(Function, File);
 		}
 	}
 }
@@ -1686,4 +1690,12 @@ void Dumper::GenerateParameters(UFunction* Function, std::ostream& File)
 	Buffer << "};\n\n";
 
 	File << Buffer.str();
+}
+
+void Dumper::GenerateDelegates(UFunction* Function, std::ostream& File)
+{
+	if (!Function)
+		return;
+
+	// i guess soon?
 }
